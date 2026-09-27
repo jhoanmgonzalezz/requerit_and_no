@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototipo - Sistema de Conjuntos Residenciales</title>
+    <!-- Fuentes e Iconos -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { brand: '#003262', accent: '#FF671F' }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden-view { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen overflow-hidden flex items-center justify-center">
+
+    <!-- ======================================================= -->
+    <!-- VISTA 1: LOGIN Y REGISTRO (Cubre RF-01 y RNF-05) -->
+    <!-- ======================================================= -->
+    <div id="auth-view" class="w-full max-w-md p-6 fade-in">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+            <div class="bg-brand p-6 text-center text-white">
+                <i class="fa-solid fa-building-user text-4xl text-accent mb-2"></i>
+                <h1 class="text-2xl font-bold">ResiGest</h1>
+                <p class="text-blue-200 text-sm">Gestión y Pago de Administración</p>
+            </div>
+            
+            <!-- Formulario de Login -->
+            <div id="login-form" class="p-8">
+                <h2 class="text-xl font-bold mb-6 text-slate-700 text-center">Iniciar Sesión</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Correo Electrónico</label>
+                        <input type="email" value="jhoan@residente.com" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Contraseña <i class="fa-solid fa-lock text-xs text-green-600" title="Cifrado bcrypt (RNF-02)"></i></label>
+                        <input type="password" value="********" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand outline-none">
+                    </div>
+                    <button onclick="login()" class="w-full bg-brand hover:bg-blue-900 text-white font-bold py-3 rounded-lg transition-colors mt-4">
+                        Ingresar al Sistema
+                    </button>
+                    <p class="text-center text-sm mt-4 text-slate-500">
+                        ¿No tienes cuenta? <button onclick="toggleAuth()" class="text-brand font-bold hover:underline">Regístrate aquí</button>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Formulario de Registro (RF-01) -->
+            <div id="register-form" class="p-8 hidden-view">
+                <h2 class="text-xl font-bold mb-6 text-slate-700 text-center">Registro de Residente</h2>
+                <div class="space-y-3">
+                    <input type="text" placeholder="Nombre Completo" class="w-full px-4 py-2 border rounded-lg text-sm">
+                    <input type="email" placeholder="Correo Electrónico" class="w-full px-4 py-2 border rounded-lg text-sm">
+                    <input type="password" placeholder="Contraseña Segura" class="w-full px-4 py-2 border rounded-lg text-sm">
+                    <div class="flex gap-2">
+                        <input type="text" placeholder="Torre (Ej: 3)" class="w-1/2 px-4 py-2 border rounded-lg text-sm">
+                        <input type="text" placeholder="Apto (Ej: 402)" class="w-1/2 px-4 py-2 border rounded-lg text-sm">
+                    </div>
+                    <div class="flex items-start gap-2 mt-2">
+                        <input type="checkbox" id="habeas" class="mt-1">
+                        <label for="habeas" class="text-xs text-slate-500">Acepto la política de tratamiento de datos personales (Ley de Habeas Data - RNF-05).</label>
+                    </div>
+                    <button onclick="login()" class="w-full bg-accent hover:bg-orange-600 text-white font-bold py-3 rounded-lg transition-colors mt-2">
+                        Crear Cuenta
+                    </button>
+                    <p class="text-center text-sm mt-2 text-slate-500">
+                        ¿Ya registrado? <button onclick="toggleAuth()" class="text-brand font-bold hover:underline">Inicia sesión</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- VISTA 2: APLICACIÓN PRINCIPAL (Dashboard) -->
+    <!-- ======================================================= -->
+    <div id="app-view" class="hidden-view w-full h-full flex flex-col md:flex-row">
+        
+        <!-- Menú Lateral -->
+        <aside class="w-64 bg-brand text-white hidden md:flex flex-col shadow-xl z-10">
+            <div class="p-6 border-b border-blue-800 flex items-center gap-3">
+                <i class="fa-solid fa-building-user text-2xl text-accent"></i>
+                <h1 class="text-xl font-bold">ResiGest</h1>
+            </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="#" class="flex items-center gap-3 px-4 py-3 bg-blue-800/50 rounded-lg font-medium"><i class="fa-solid fa-house"></i> Inicio</a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-blue-800/50 rounded-lg"><i class="fa-solid fa-file-invoice"></i> Historial</a>
+            </nav>
+            <div class="p-4 border-t border-blue-800">
+                <button onclick="logout()" class="w-full text-left text-slate-300 hover:text-white flex items-center gap-2"><i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar Sesión</button>
+            </div>
+        </aside>
+
+        <!-- Área Principal -->
+        <main class="flex-1 flex flex-col h-full bg-slate-50 overflow-y-auto relative">
+            
+            <!-- Barra Superior -->
+            <header class="bg-white border-b px-6 py-4 flex justify-between items-center sticky top-0 z-10">
+                <h2 id="header-title" class="text-xl font-bold text-slate-700">Panel de Residente</h2>
+                <div class="flex items-center gap-4">
+                    <button onclick="switchRole()" class="text-xs font-bold bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2 rounded-lg flex items-center gap-2">
+                        <i class="fa-solid fa-repeat"></i> Cambiar a Admin
+                    </button>
+                    <div class="flex items-center gap-3 pl-4 border-l">
+                        <div class="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold">JG</div>
+                        <div class="hidden md:block">
+                            <p id="user-name" class="text-sm font-bold">Jhoan Gonzalez</p>
+                            <p id="user-role" class="text-xs text-slate-500">Torre 3 - Apto 402</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CONTENIDO RESIDENTE (Cubre RF-02 y RF-03) -->
+            <div id="resident-dashboard" class="p-6 md:p-8 fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Estado de cuenta (RF-02) -->
+                    <div class="bg-white rounded-xl shadow-sm border p-6 border-t-4 border-t-red-500">
+                        <p class="text-sm text-slate-500 font-medium">Estado de Cuenta</p>
+                        <h3 class="text-3xl font-bold text-slate-800 mt-1">$ 245.000</h3>
+                        <p class="text-red-500 text-sm font-bold mt-2"><i class="fa-solid fa-circle-exclamation"></i> Pago Pendiente (Mora)</p>
+                    </div>
+                    <!-- Botón de Pago (RF-03) -->
+                    <div onclick="openPaymentModal()" class="bg-gradient-to-r from-brand to-blue-800 rounded-xl shadow-md p-6 text-white flex flex-col justify-center items-center cursor-pointer hover:shadow-lg transition-transform hover:-translate-y-1">
+                        <i class="fa-solid fa-credit-card text-3xl mb-2"></i>
+                        <h3 class="font-bold text-lg">Realizar Pago en Línea</h3>
+                        <p class="text-xs text-blue-200">PSE / Tarjetas de Crédito</p>
+                    </div>
+                </div>
+
+                <h3 class="text-lg font-bold mb-4"><i class="fa-solid fa-clock-rotate-left"></i> Últimos Comprobantes</h3>
+                <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 border-b">
+                            <tr><th class="px-6 py-3">Mes</th><th class="px-6 py-3">Estado</th><th class="px-6 py-3 text-right">Soporte</th></tr>
+                        </thead>
+                        <tbody class="divide-y">
+                            <tr>
+                                <td class="px-6 py-4">Agosto 2026</td>
+                                <td class="px-6 py-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Pagado</span></td>
+                                <td class="px-6 py-4 text-right"><button class="text-brand hover:text-accent"><i class="fa-solid fa-download"></i> PDF</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CONTENIDO ADMINISTRADOR (Cubre RF-04) -->
+            <div id="admin-dashboard" class="p-6 md:p-8 hidden-view fade-in">
+                <!-- Filtros (RF-04 Entradas) -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border mb-6 flex flex-wrap gap-4 items-end">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Filtrar por Torre</label>
+                        <select class="border rounded px-3 py-2 text-sm outline-none w-40">
+                            <option>Todas las torres</option><option>Torre 1</option><option>Torre 2</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1">Periodo Financiero</label>
+                        <select class="border rounded px-3 py-2 text-sm outline-none w-40">
+                            <option>Septiembre 2026</option><option>Agosto 2026</option>
+                        </select>
+                    </div>
+                    <!-- Botón Exportar Excel (RF-04 Salidas) -->
+                    <button onclick="downloadExcel()" class="ml-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-file-excel"></i> Exportar a Excel (.xlsx)
+                    </button>
+                </div>
+
+                <!-- Tabla General de Cartera -->
+                <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-800 text-white">
+                            <tr><th class="px-6 py-3">Apto</th><th class="px-6 py-3">Residente</th><th class="px-6 py-3">Estado</th></tr>
+                        </thead>
+                        <tbody class="divide-y">
+                            <tr><td class="px-6 py-4 font-bold">T1-101</td><td class="px-6 py-4">Carlos Mendoza</td><td class="px-6 py-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Al día</span></td></tr>
+                            <tr class="bg-red-50"><td class="px-6 py-4 font-bold">T3-402</td><td class="px-6 py-4">Jhoan Gonzalez</td><td class="px-6 py-4"><span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">Mora (1 mes)</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- MODAL DE PASARELA DE PAGOS (RF-03) -->
+    <!-- ======================================================= -->
+    <div id="payment-modal" class="fixed inset-0 bg-black/60 hidden-view flex items-center justify-center z-50">
+        <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl scale-95 transition-transform">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="font-bold text-lg text-brand"><i class="fa-solid fa-shield-halved text-green-600"></i> Pago Seguro en Línea</h3>
+                <button onclick="closePaymentModal()" class="text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="text-center mb-6">
+                <p class="text-sm text-slate-500">Valor a pagar:</p>
+                <p class="text-3xl font-bold text-slate-800">$ 245.000</p>
+            </div>
+            <div class="space-y-3 mb-6">
+                <button onclick="processPayment()" class="w-full border-2 border-slate-200 hover:border-brand rounded-lg p-3 flex items-center justify-center gap-3 transition-colors">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/PSE_logo.svg" alt="PSE" class="h-6">
+                    <span class="font-bold text-slate-700">Pago con cuenta de ahorros (PSE)</span>
+                </button>
+                <button onclick="processPayment()" class="w-full border-2 border-slate-200 hover:border-brand rounded-lg p-3 flex items-center justify-center gap-3 transition-colors">
+                    <i class="fa-solid fa-credit-card text-brand text-xl"></i>
+                    <span class="font-bold text-slate-700">Tarjeta de Crédito / Débito</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts de Interacción -->
+    <script>
+        let isResidentView = true;
+
+        // Toggle Login / Registro (RF-01)
+        function toggleAuth() {
+            document.getElementById('login-form').classList.toggle('hidden-view');
+            document.getElementById('register-form').classList.toggle('hidden-view');
+        }
+
+        // Ingresar a la App
+        function login() {
+            document.getElementById('auth-view').classList.add('hidden-view');
+            document.getElementById('app-view').classList.remove('hidden-view');
+            document.getElementById('app-view').classList.add('flex');
+        }
+
+        // Salir de la App
+        function logout() {
+            document.getElementById('app-view').classList.add('hidden-view');
+            document.getElementById('app-view').classList.remove('flex');
+            document.getElementById('auth-view').classList.remove('hidden-view');
+        }
+
+        // Cambiar entre Residente y Admin
+        function switchRole() {
+            isResidentView = !isResidentView;
+            if (isResidentView) {
+                document.getElementById('resident-dashboard').classList.remove('hidden-view');
+                document.getElementById('admin-dashboard').classList.add('hidden-view');
+                document.getElementById('header-title').innerText = "Panel de Residente";
+            } else {
+                document.getElementById('resident-dashboard').classList.add('hidden-view');
+                document.getElementById('admin-dashboard').classList.remove('hidden-view');
+                document.getElementById('header-title').innerText = "Panel de Administración";
+            }
+        }
+
+        // Pasarela de Pagos (RF-03)
+        function openPaymentModal() { document.getElementById('payment-modal').classList.remove('hidden-view'); }
+        function closePaymentModal() { document.getElementById('payment-modal').classList.add('hidden-view'); }
+        function processPayment() {
+            closePaymentModal();
+            alert("✅ ¡Transacción aprobada por la entidad bancaria!\nEl recibo se ha generado exitosamente en tu historial.");
+        }
+
+        // Exportación de Excel (RF-04)
+        function downloadExcel() {
+            alert("📊 Generando archivo...\n\nSe ha descargado 'Reporte_Cartera_Sept2026.xlsx' en su equipo.");
+        }
+    </script>
+</body>
+</html>
